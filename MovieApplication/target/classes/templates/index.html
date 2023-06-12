@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie App</title>
+</head>
+<body>
+<h1>User Registration</h1>
+<form id="registerForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="submit">Register</button>
+</form>
+
+<h1>User Login</h1>
+<form id="loginForm">
+    <label for="loginUsername">Username:</label>
+    <input type="text" id="loginUsername" name="loginUsername" required>
+    <br>
+    <label for="loginPassword">Password:</label>
+    <input type="password" id="loginPassword" name="loginPassword" required>
+    <br>
+    <button type="submit">Login</button>
+</form>
+
+<h1>Movie Posts</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Photo</th>
+    </tr>
+    </thead>
+    <tbody id="movieTableBody">
+    </tbody>
+</table>
+
+<script>
+        // Register form submit event listener
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            fetch("/users/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("User registered successfully:", data);
+                // Clear the form fields
+                document.getElementById("username").value = "";
+                document.getElementById("password").value = "";
+            })
+            .catch(error => {
+                console.error("Error registering user:", error);
+            });
+        });
+
+        // Login form submit event listener
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("loginUsername").value;
+            const password = document.getElementById("loginPassword").value;
+
+            fetch("/users/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("User logged in successfully:", data);
+                // Clear the form fields
+                document.getElementById("loginUsername").value = "";
+                document.getElementById("loginPassword").value = "";
+            })
+            .catch(error => {
+                console.error("Error logging in user:", error);
+            });
+        });
+
+        // Fetch and display movie posts
+        fetch("/movies/all")
+            .then(response => response.json())
+            .then(data => {
+                const movieTableBody = document.getElementById("movieTableBody");
+                data.forEach(movie => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${movie.name}</td>
+                        <td>${movie.description}</td>
+                        <td><img src="${movie.photoUrl}" alt="Movie Photo" width="100"></td>
+                    `;
+                    movieTableBody.appendChild(row);
+                });
+            });
+    </script>
+</body>
+</html>
